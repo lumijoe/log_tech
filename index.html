@@ -246,7 +246,7 @@
     <div class="container">
         <div class="header">
             <h1>🚀 学習スケジュール管理</h1>
-            <p>転職活動に向けたスキルアップ計画 - 49歳最後の挑戦！</p>
+            <p>転職活動に向けたスキルアップ計画 - 8月6日スタート！49歳最後の挑戦！</p>
         </div>
         
         <div class="calendar">
@@ -286,15 +286,25 @@
         const scheduleData = {
             // 8月のスケジュール
             '2025-08': {
-                'week1-2': {
+                'week1': {
                     morning: 'Web技術書籍読み始め、IT試験対策開始',
                     noon: 'Ruby基礎学習',
                     afternoon: 'VPS環境セットアップ、サーバー設定'
                 },
-                'week3-4': {
+                'week2': {
                     morning: '継続学習',
-                    noon: 'Next.js環境準備、家計簿アプリ開発開始',
+                    noon: 'Ruby基礎学習継続',
                     afternoon: 'VPS上でのRuby環境構築'
+                },
+                'week3': {
+                    morning: '継続学習',
+                    noon: 'Next.js環境準備',
+                    afternoon: 'VPS環境の詳細設定'
+                },
+                'week4': {
+                    morning: '継続学習',
+                    noon: '家計簿アプリ開発開始',
+                    afternoon: '開発環境の最適化'
                 }
             },
             // 9月のスケジュール
@@ -353,13 +363,6 @@
             if (dayOfMonth <= 7) return 'week1';
             if (dayOfMonth <= 14) return 'week2';
             if (dayOfMonth <= 21) return 'week3';
-            if (dayOfMonth <= 28) return 'week4';
-            
-            // 8月の特別処理
-            if (date.getMonth() === 7) {
-                if (dayOfMonth <= 14) return 'week1-2';
-                if (dayOfMonth <= 31) return 'week3-4';
-            }
             
             return 'week4';
         }
@@ -470,7 +473,9 @@
                 
                 // タスクを追加
                 const tasks = getTasksForDate(cellDate);
-                if (tasks && cellDate.getMonth() === month) {
+                // 8月は6日から開始
+                const isAugustAndBeforeStart = cellDate.getMonth() === 7 && cellDate.getDate() < 6;
+                if (tasks && cellDate.getMonth() === month && !isAugustAndBeforeStart) {
                     const morningTask = document.createElement('div');
                     morningTask.className = 'task-morning task-item';
                     const morningId = `morning-${cellDate.getTime()}`;
