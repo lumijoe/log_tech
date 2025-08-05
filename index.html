@@ -283,75 +283,63 @@
         let currentDate = new Date();
         currentDate.setMonth(7); // 8月から開始
 
-        const scheduleData = {
-            // 8月のスケジュール
+        // ページ数計算関数
+        function calculateDailyPages(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+            
+            // Web技術: p2からp497 (495ページ)、基本情報: p16からp806 (790ページ)
+            const webTechPages = 495;
+            const basicInfoPages = 790;
+            
+            const dailyWebTech = Math.floor(webTechPages / days);
+            const dailyBasicInfo = Math.floor(basicInfoPages / days);
+            
+            return { dailyWebTech, dailyBasicInfo, totalDays: days };
+        }
+
+        // 日付から学習ページを計算
+        function getStudyPages(date) {
+            const startDate = new Date('2025-08-06');
+            const targetDate = new Date(date);
+            
+            if (targetDate < startDate) return null;
+            
+            const dayIndex = Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24));
+            
+            // 1日あたり: Web技術6ページ、基本情報10ページ
+            const webTechStart = 2 + (dayIndex * 6);
+            const webTechEnd = Math.min(webTechStart + 5, 497);
+            
+            const basicInfoStart = 16 + (dayIndex * 10);
+            const basicInfoEnd = Math.min(basicInfoStart + 9, 806);
+            
+            return {
+                webTech: `Web技術 p${webTechStart}-${webTechEnd}`,
+                basicInfo: `基本情報 p${basicInfoStart}-${basicInfoEnd}`
+            };
+        }
+
+        // 昼・午後のタスクデータ
+        const developmentSchedule = {
             '2025-08': {
-                'week1': {
-                    morning: 'Web技術書籍読み始め、IT試験対策開始',
-                    noon: 'Ruby基礎学習',
-                    afternoon: 'VPS環境セットアップ、サーバー設定'
-                },
-                'week2': {
-                    morning: '継続学習',
-                    noon: 'Ruby基礎学習継続',
-                    afternoon: 'VPS上でのRuby環境構築'
-                },
-                'week3': {
-                    morning: '継続学習',
-                    noon: 'Next.js環境準備',
-                    afternoon: 'VPS環境の詳細設定'
-                },
-                'week4': {
-                    morning: '継続学習',
-                    noon: '家計簿アプリ開発開始',
-                    afternoon: '開発環境の最適化'
-                }
+                '6-12': { noon: 'Ruby基礎学習', afternoon: 'VPS環境セットアップ、サーバー設定' },
+                '13-19': { noon: 'Ruby基礎学習継続', afternoon: 'VPS上でのRuby環境構築' },
+                '20-26': { noon: 'Next.js環境準備', afternoon: 'VPS環境の詳細設定' },
+                '27-31': { noon: '家計簿アプリ開発開始', afternoon: '開発環境の最適化' }
             },
-            // 9月のスケジュール
             '2025-09': {
-                'week1': {
-                    morning: '継続学習',
-                    noon: '家計簿アプリ完成',
-                    afternoon: '家計簿アプリのVPSデプロイ'
-                },
-                'week2': {
-                    morning: '継続学習',
-                    noon: 'テックログアプリ完成',
-                    afternoon: 'テックログアプリのVPSデプロイ'
-                },
-                'week3': {
-                    morning: '継続学習',
-                    noon: 'コードスナップアプリ完成',
-                    afternoon: 'コードスナップアプリのVPSデプロイ'
-                },
-                'week4': {
-                    morning: '継続学習',
-                    noon: 'Next.js新規アプリ開発開始',
-                    afternoon: 'VPS上でのNext.js環境構築'
-                }
+                '1-7': { noon: '家計簿アプリ完成', afternoon: '家計簿アプリのVPSデプロイ' },
+                '8-14': { noon: 'テックログアプリ完成', afternoon: 'テックログアプリのVPSデプロイ' },
+                '15-21': { noon: 'コードスナップアプリ完成', afternoon: 'コードスナップアプリのVPSデプロイ' },
+                '22-30': { noon: 'Next.js新規アプリ開発開始', afternoon: 'VPS上でのNext.js環境構築' }
             },
-            // 10月のスケジュール
             '2025-10': {
-                'week1': {
-                    morning: '継続学習',
-                    noon: 'Next.js新規アプリ完成',
-                    afternoon: 'Next.jsアプリのVPSデプロイ'
-                },
-                'week2': {
-                    morning: '継続学習',
-                    noon: 'RAG・生成AI活用アプリ開発',
-                    afternoon: 'RAGアプリのVPSデプロイ'
-                },
-                'week3': {
-                    morning: '継続学習',
-                    noon: 'Next.js 12→15アップグレード作業',
-                    afternoon: 'アップグレード版のVPSデプロイ'
-                },
-                'week4': {
-                    morning: 'IT試験直前対策',
-                    noon: 'WordPressポートフォリオ作成',
-                    afternoon: 'WordPressのVPSデプロイ、全体の最終調整'
-                }
+                '1-7': { noon: 'Next.js新規アプリ完成', afternoon: 'Next.jsアプリのVPSデプロイ' },
+                '8-14': { noon: 'RAG・生成AI活用アプリ開発', afternoon: 'RAGアプリのVPSデプロイ' },
+                '15-21': { noon: 'Next.js 12→15アップグレード作業', afternoon: 'アップグレード版のVPSデプロイ' },
+                '22-31': { noon: 'WordPressポートフォリオ作成', afternoon: 'WordPressのVPSデプロイ、全体の最終調整' }
             }
         };
 
@@ -369,12 +357,31 @@
 
         function getTasksForDate(date) {
             const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-            const week = getWeekOfMonth(date);
+            const day = date.getDate();
             
-            if (scheduleData[yearMonth] && scheduleData[yearMonth][week]) {
-                return scheduleData[yearMonth][week];
+            // 朝の学習ページを計算
+            const studyPages = getStudyPages(date);
+            if (!studyPages) return null;
+            
+            // 昼・午後のタスクを取得
+            let devTask = null;
+            if (developmentSchedule[yearMonth]) {
+                for (const range in developmentSchedule[yearMonth]) {
+                    const [start, end] = range.split('-').map(Number);
+                    if (day >= start && day <= end) {
+                        devTask = developmentSchedule[yearMonth][range];
+                        break;
+                    }
+                }
             }
-            return null;
+            
+            if (!devTask) return null;
+            
+            return {
+                morning: `${studyPages.webTech}、${studyPages.basicInfo}`,
+                noon: devTask.noon,
+                afternoon: devTask.afternoon
+            };
         }
 
         function saveProgress() {
