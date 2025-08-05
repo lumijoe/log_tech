@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学習スケジュール管理カレンダー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .calendar {
+            padding: 30px;
+        }
+
+        .month-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .month-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e1e5e9;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .day-header {
+            background: #f8f9fa;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+
+        .day-cell {
+            background: white;
+            min-height: 150px;
+            padding: 10px;
+            position: relative;
+            transition: background-color 0.2s;
+        }
+
+        .day-cell:hover {
+            background: #f8f9fa;
+        }
+
+        .day-cell.other-month {
+            background: #f8f9fa;
+            color: #adb5bd;
+        }
+
+        .day-cell.today {
+            background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+            border: 2px solid #667eea;
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+
+        .task-item {
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+            line-height: 1.2;
+        }
+
+        .task-morning {
+            background: linear-gradient(90deg, #ffd89b 0%, #19547b 100%);
+            color: white;
+            padding: 3px 6px;
+            border-radius: 8px;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .task-noon {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3px 6px;
+            border-radius: 8px;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .task-afternoon {
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 3px 6px;
+            border-radius: 8px;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .task-checkbox {
+            width: 16px;
+            height: 16px;
+            margin-left: 5px;
+            cursor: pointer;
+            accent-color: white;
+        }
+
+        .task-completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .calendar-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .day-header {
+                display: none;
+            }
+            
+            .day-cell {
+                border-bottom: 1px solid #e1e5e9;
+                border-radius: 0;
+                min-height: auto;
+                padding: 15px;
+            }
+            
+            .day-cell::before {
+                content: attr(data-day-name);
+                font-weight: 600;
+                color: #495057;
+                display: block;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 学習スケジュール管理</h1>
+            <p>転職活動に向けたスキルアップ計画 - 49歳最後の挑戦！</p>
+        </div>
+        
+        <div class="calendar">
+            <div class="month-navigation">
+                <button class="nav-btn" onclick="changeMonth(-1)">← 前月</button>
+                <h2 class="month-title" id="monthTitle"></h2>
+                <button class="nav-btn" onclick="changeMonth(1)">次月 →</button>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+            </div>
+            
+            <div class="calendar-grid" id="calendarGrid"></div>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color task-morning"></div>
+                    <span>朝: Web技術 + IT試験対策</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color task-noon"></div>
+                    <span>昼: メイン開発作業</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color task-afternoon"></div>
+                    <span>午後: VPS・デプロイ作業</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDate = new Date();
+        currentDate.setMonth(7); // 8月から開始
+
+        const scheduleData = {
+            // 8月のスケジュール
+            '2025-08': {
+                'week1-2': {
+                    morning: 'Web技術書籍読み始め、IT試験対策開始',
+                    noon: 'Ruby基礎学習',
+                    afternoon: 'VPS環境セットアップ、サーバー設定'
+                },
+                'week3-4': {
+                    morning: '継続学習',
+                    noon: 'Next.js環境準備、家計簿アプリ開発開始',
+                    afternoon: 'VPS上でのRuby環境構築'
+                }
+            },
+            // 9月のスケジュール
+            '2025-09': {
+                'week1': {
+                    morning: '継続学習',
+                    noon: '家計簿アプリ完成',
+                    afternoon: '家計簿アプリのVPSデプロイ'
+                },
+                'week2': {
+                    morning: '継続学習',
+                    noon: 'テックログアプリ完成',
+                    afternoon: 'テックログアプリのVPSデプロイ'
+                },
+                'week3': {
+                    morning: '継続学習',
+                    noon: 'コードスナップアプリ完成',
+                    afternoon: 'コードスナップアプリのVPSデプロイ'
+                },
+                'week4': {
+                    morning: '継続学習',
+                    noon: 'Next.js新規アプリ開発開始',
+                    afternoon: 'VPS上でのNext.js環境構築'
+                }
+            },
+            // 10月のスケジュール
+            '2025-10': {
+                'week1': {
+                    morning: '継続学習',
+                    noon: 'Next.js新規アプリ完成',
+                    afternoon: 'Next.jsアプリのVPSデプロイ'
+                },
+                'week2': {
+                    morning: '継続学習',
+                    noon: 'RAG・生成AI活用アプリ開発',
+                    afternoon: 'RAGアプリのVPSデプロイ'
+                },
+                'week3': {
+                    morning: '継続学習',
+                    noon: 'Next.js 12→15アップグレード作業',
+                    afternoon: 'アップグレード版のVPSデプロイ'
+                },
+                'week4': {
+                    morning: 'IT試験直前対策',
+                    noon: 'WordPressポートフォリオ作成',
+                    afternoon: 'WordPressのVPSデプロイ、全体の最終調整'
+                }
+            }
+        };
+
+        function getWeekOfMonth(date) {
+            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+            const dayOfMonth = date.getDate();
+            const dayOfWeek = firstDay.getDay();
+            
+            if (dayOfMonth <= 7) return 'week1';
+            if (dayOfMonth <= 14) return 'week2';
+            if (dayOfMonth <= 21) return 'week3';
+            if (dayOfMonth <= 28) return 'week4';
+            
+            // 8月の特別処理
+            if (date.getMonth() === 7) {
+                if (dayOfMonth <= 14) return 'week1-2';
+                if (dayOfMonth <= 31) return 'week3-4';
+            }
+            
+            return 'week4';
+        }
+
+        function getTasksForDate(date) {
+            const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            const week = getWeekOfMonth(date);
+            
+            if (scheduleData[yearMonth] && scheduleData[yearMonth][week]) {
+                return scheduleData[yearMonth][week];
+            }
+            return null;
+        }
+
+        function saveProgress() {
+            const checkboxes = document.querySelectorAll('.task-checkbox');
+            const progress = {};
+            checkboxes.forEach(checkbox => {
+                progress[checkbox.id] = checkbox.checked;
+            });
+            localStorage.setItem('studyProgress', JSON.stringify(progress));
+            updateProgressBar();
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem('studyProgress');
+            if (saved) {
+                const progress = JSON.parse(saved);
+                Object.keys(progress).forEach(id => {
+                    const checkbox = document.getElementById(id);
+                    if (checkbox) {
+                        checkbox.checked = progress[id];
+                        updateTaskAppearance(checkbox);
+                    }
+                });
+            }
+            updateProgressBar();
+        }
+
+        function updateTaskAppearance(checkbox) {
+            const taskElement = checkbox.closest('.task-morning, .task-noon, .task-afternoon');
+            if (checkbox.checked) {
+                taskElement.classList.add('task-completed');
+            } else {
+                taskElement.classList.remove('task-completed');
+            }
+        }
+
+        function updateProgressBar() {
+            const checkboxes = document.querySelectorAll('.task-checkbox');
+            const checkedBoxes = document.querySelectorAll('.task-checkbox:checked');
+            const percentage = checkboxes.length > 0 ? Math.round((checkedBoxes.length / checkboxes.length) * 100) : 0;
+            
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = percentage + '%';
+            progressFill.textContent = percentage + '%';
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const monthTitle = document.getElementById('monthTitle');
+            
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            monthTitle.textContent = `${year}年${month + 1}月`;
+            
+            // カレンダーグリッドをクリア
+            grid.innerHTML = '';
+            
+            // 曜日ヘッダー
+            const dayHeaders = ['日', '月', '火', '水', '木', '金', '土'];
+            dayHeaders.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'day-header';
+                header.textContent = day;
+                grid.appendChild(header);
+            });
+            
+            // 月の最初の日と最後の日
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            // カレンダーのセルを生成
+            for (let i = 0; i < 42; i++) {
+                const cellDate = new Date(startDate);
+                cellDate.setDate(startDate.getDate() + i);
+                
+                const cell = document.createElement('div');
+                cell.className = 'day-cell';
+                cell.setAttribute('data-day-name', dayHeaders[cellDate.getDay()]);
+                
+                if (cellDate.getMonth() !== month) {
+                    cell.classList.add('other-month');
+                }
+                
+                const today = new Date();
+                if (cellDate.toDateString() === today.toDateString()) {
+                    cell.classList.add('today');
+                }
+                
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = cellDate.getDate();
+                cell.appendChild(dayNumber);
+                
+                // タスクを追加
+                const tasks = getTasksForDate(cellDate);
+                if (tasks && cellDate.getMonth() === month) {
+                    const morningTask = document.createElement('div');
+                    morningTask.className = 'task-morning task-item';
+                    const morningId = `morning-${cellDate.getTime()}`;
+                    morningTask.innerHTML = `
+                        <span>朝: ${tasks.morning}</span>
+                        <input type="checkbox" class="task-checkbox" id="${morningId}" onchange="saveProgress(); updateTaskAppearance(this);">
+                    `;
+                    cell.appendChild(morningTask);
+                    
+                    const noonTask = document.createElement('div');
+                    noonTask.className = 'task-noon task-item';
+                    const noonId = `noon-${cellDate.getTime()}`;
+                    noonTask.innerHTML = `
+                        <span>昼: ${tasks.noon}</span>
+                        <input type="checkbox" class="task-checkbox" id="${noonId}" onchange="saveProgress(); updateTaskAppearance(this);">
+                    `;
+                    cell.appendChild(noonTask);
+                    
+                    const afternoonTask = document.createElement('div');
+                    afternoonTask.className = 'task-afternoon task-item';
+                    const afternoonId = `afternoon-${cellDate.getTime()}`;
+                    afternoonTask.innerHTML = `
+                        <span>午後: ${tasks.afternoon}</span>
+                        <input type="checkbox" class="task-checkbox" id="${afternoonId}" onchange="saveProgress(); updateTaskAppearance(this);">
+                    `;
+                    cell.appendChild(afternoonTask);
+                }
+                
+                grid.appendChild(cell);
+            }
+            
+            // 進捗を読み込み
+            setTimeout(loadProgress, 100);
+        }
+
+        function changeMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            renderCalendar();
+        }
+
+        // 初期化
+        renderCalendar();
+    </script>
+</body>
+</html>
